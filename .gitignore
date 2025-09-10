@@ -13,6 +13,7 @@ lerna-debug.log*
 /dist-ssr
 *.local
 
+minio/data/
 
 .vscode/*
 !.vscode/extensions.json
