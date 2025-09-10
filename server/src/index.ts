@@ -1,8 +1,13 @@
-import express from 'express';
+import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
+import { typeDefs } from './graphql/schema.js';
+import { resolvers } from './graphql/resolvers.js';
 
-const app = express();
+
+const app = new ApolloServer({ typeDefs, resolvers });
 const port = 4040;
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+const { url } = await startStandaloneServer(app, {
+    listen: { port: port },
+  });
+  console.log(`🚀  Server ready at: ${url}`);
