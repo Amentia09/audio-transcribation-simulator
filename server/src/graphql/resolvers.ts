@@ -26,8 +26,8 @@ export const resolvers = {
           data: {
             id,
             name: filename,
-            status: JobStatus.PENDING_UPLOAD,
-            s3Key: key,
+            status: JobStatus.PROCESSING,
+            s3key: key,
             transcriptionText: '',
           },
         });

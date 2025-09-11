@@ -1,8 +1,15 @@
+import { useEffect, useState } from 'react'
 import UploadForm from './components/UploadForm'
-import { Layout, Typography  } from 'antd'
-import ListOfItems from './components/ListOfItems'
+import { Layout, Typography, Spin  } from 'antd'
+import { LoadingOutlined } from '@ant-design/icons';
 const { Header, Footer, Content  } = Layout;
 const { Title } = Typography;
+
+import ListOfItems from './components/ListOfItems'
+import type { Job } from './interfaces/interfaces'
+
+import { GET_JOBS } from './graphql/jobs_requests'
+import { useQuery } from '@apollo/client/react'
 
 
 const headerStyled: React.CSSProperties = {
@@ -13,7 +20,6 @@ const headerStyled: React.CSSProperties = {
   alignItems: 'center',
   backgroundColor: 'rgb(48, 66, 116)',
 };
-
 const footerStyled: React.CSSProperties = {
   margin: 0,
   position: 'fixed',
@@ -26,6 +32,32 @@ const footerStyled: React.CSSProperties = {
 
 
 function App() {
+  const [loadingList, setLoadingList] = useState<boolean>(false);
+  const [errorList, setErrorList] = useState<boolean>(false);
+
+  const { data, loading, error } = useQuery<{ jobs: Job[] }>(GET_JOBS, {
+    pollInterval: 16000,
+  });
+
+  useEffect(() => {
+    if (loading) {
+      setLoadingList(true);
+    } else {
+      setLoadingList(false);
+    }
+
+    if (error) {
+      setErrorList(true);
+    } else {
+      setErrorList(false);
+    }
+    console.log(jobs);
+  }, [loading, error]);
+
+  const jobs: Job[] = data?.jobs ?? [];
+
+
+
   return (
     <>
       <Header style={headerStyled}>
@@ -38,7 +70,9 @@ function App() {
         </Header>
 
         <Content>
-          <ListOfItems />
+          {loadingList ? <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} /> : <ListOfItems jobs={jobs} />}
+          {errorList ? <p>Ошибка: {error?.message}</p> : null}
+          {/* <ListOfItems /> */}
           <UploadForm />
         </Content>
 

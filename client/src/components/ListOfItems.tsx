@@ -1,39 +1,20 @@
-import { Space, List, Card, Tag } from 'antd'
 import React from 'react'
-
-const mockData = [
-  {
-    id: 1,
-    name: '1 song',
-    status: 'COMPLETED',
-    content: 'Text of transcribation'
-  },
-  {
-    id: 2,
-    name: '2 song',
-    status: 'ERROR',
-    content: '-'
-  },
-  {
-    id: 3,
-    name: '3 song',
-    status: 'PROCESSING',
-    content: '-'
-  }
-]
+import { Space, Card, Tag, Spin } from 'antd'
+import { LoadingOutlined } from '@ant-design/icons'
+import type { Job } from '../interfaces/interfaces'
 
 
-const ListOfItems: React.FC = () => {
+const ListOfItems: React.FC<{jobs: Array<Job>}> = ({jobs}) => {
 
     const colorTag = (status: string) => {
         if (status === 'COMPLETED') return 'green'
         if (status === 'PROCESSING') return 'yellow'
-        if (status === 'ERROR') return 'red'
+        if (status === 'FAILED') return 'red'
         return 'blue'
     }
   return (
     <Space  align="center" direction="vertical" size="middle" style={{ display: 'flex', margin: '20px' }}>
-        {mockData.map((job, index) => (
+        {jobs.map((job, index) => (
             <Card 
             key={index} 
             title={job.name} 
@@ -43,7 +24,8 @@ const ListOfItems: React.FC = () => {
             <Tag color={colorTag(job.status)}>{job.status}</Tag>
             }
             >
-                <p>{job.content}</p>
+                { (job.status === 'PROCESSING') ? <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} /> : <p>{job.transcriptionText}</p> }
+                {/* <p>{job.transcriptionText}</p> */}
             </Card>
         ))}
     </Space>

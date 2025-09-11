@@ -8,7 +8,6 @@ generator client {
 }
 
 enum JobStatus {
-  PENDING_UPLOAD
   PROCESSING
   COMPLETED
   FAILED
@@ -16,7 +15,7 @@ enum JobStatus {
 
 model Job {
   id               String     @id @default(uuid())
-  status           JobStatus  @default(PENDING_UPLOAD)
+  status           JobStatus  @default(PROCESSING)
   name             String
   s3key            String
   transcriptionText String?

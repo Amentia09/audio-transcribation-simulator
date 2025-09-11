@@ -1,11 +1,11 @@
 export const typeDefs = /* GraphQL */ `
-  enum JobStatus { PENDING_UPLOAD PROCESSING COMPLETED FAILED }
+  enum JobStatus { PROCESSING COMPLETED FAILED }
 
   type Job {
     id: ID!
     status: JobStatus!
     name: String!
-    s3Key: String
+    s3key: String
     s3Url: String
     transcriptionText: String
     createdAt: String!
@@ -25,9 +25,7 @@ export const typeDefs = /* GraphQL */ `
   }
 
   type Mutation {
-    createJob(name: String!, status: JobStatus = PROCESSING): Job!
-    deleteJob(id: ID!): Job
-    createUploadJob(filename: String!, mime: String!, size: Int!): CreateUploadJobPayload!
-    confirmUpload(id: ID!): Job!
+  createUploadJob(filename: String!, mime: String!, size: Int!): CreateUploadJobPayload!
+  deleteJob(id: ID!): Job
   }
 `;
