@@ -25,5 +25,7 @@ minio/data/
 *.sln
 *.sw?
 
+/data
+
 
 .env

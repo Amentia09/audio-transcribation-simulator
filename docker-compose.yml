@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client
+    ports:
+      - "5173:5173" 
+    depends_on:
+      - server
+    environment:
+      - REACT_APP_API_URL=http://server:4040/
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: server
+    ports:
+      - "4040:4040"
+    environment:
+      DATABASE_URL: "file:./dev.db"
+      MINIO_ENDPOINT: "http://minio:9000"
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+    # volumes:
+    #   - ./server/prisma:/app/prisma
+    depends_on:
+      - minio
+    env_file:
+      - ./server/.env
+
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+      MINIO_BUCKETS: audio-transcribation
+    # volumes:
+    #   - ./data:/data

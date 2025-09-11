@@ -36,7 +36,7 @@ function App() {
   const [errorList, setErrorList] = useState<boolean>(false);
 
   const { data, loading, error } = useQuery<{ jobs: Job[] }>(GET_JOBS, {
-    pollInterval: 16000,
+    pollInterval: 20000,
   });
 
   useEffect(() => {
