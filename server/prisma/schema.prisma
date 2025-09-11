@@ -1,0 +1,25 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum JobStatus {
+  PENDING_UPLOAD
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model Job {
+  id               String     @id @default(uuid())
+  status           JobStatus  @default(PENDING_UPLOAD)
+  name             String
+  s3key            String
+  transcriptionText String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
