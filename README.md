@@ -43,7 +43,7 @@ pwd: password123
 
 <h3>Пример 1</h3>
 <img width="1899" height="940" alt="image" src="https://github.com/user-attachments/assets/2a604a9b-ba41-43e5-9ba0-b32479177f3a" />
-</h3>Пример 2</h3>
+<h3>Пример 2</h3>
 <img width="1900" height="945" alt="Снимок экрана Test_Job" src="https://github.com/user-attachments/assets/d341bd70-9cae-4222-96e2-bdb523330c9f" />
 <h3>Демонстрация MinIO UI</h3>
 <img width="1888" height="921" alt="image" src="https://github.com/user-attachments/assets/a12f572b-d979-4bf5-8c8d-1cbf106421d9" />
