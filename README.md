@@ -20,9 +20,12 @@
 Для запуска проекта необходимо настроить <b>.env</b> файлы по примеру из <b>.env.example</b>
 В данном случае можно скопировать информацию из .env.example в созданный Вами файл .env в папке server
 
--server
---src
---.env
+```
+-server <br>
+--src <br>
+--.env <br>
+```
+
 
 Запустите в корне проекта команду:
 <code>docker compose -f .\docker-compose.yml up -d</code>

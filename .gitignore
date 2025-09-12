@@ -26,6 +26,6 @@ minio/data/
 *.sw?
 
 /data
-
+minio-data/
 
 .env
