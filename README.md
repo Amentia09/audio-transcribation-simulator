@@ -11,17 +11,4 @@ pwd: password123
 
 После входа создайте бакет для хранения файлов с именем: audio-transcribation
 
-
-2 Вариант запуска:
-Запустить minIO отдельно что позволит избежать ошибок с сохранением файлов, если таковые имеются
-Перейдите в директорию
-/minio
-docker compose -f .\docker-compose.yml up -d
-
-В папке client 
-npm run build
-npm run preview
-
-server
-npm run build
-npm run start
+Перейдите по адресу localhost:5173 для использования интерфейса

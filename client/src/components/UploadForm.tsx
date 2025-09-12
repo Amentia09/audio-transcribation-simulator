@@ -4,7 +4,7 @@ import { Space, Upload, message } from "antd";
 import { useMutation } from "@apollo/client/react";
 import { CREATE_UPLOAD_JOB } from "../graphql/upload_requests";
 import { GET_JOBS } from "../graphql/jobs_requests";
-
+import { logger } from "../utils/logger";
 
 import type { CreateUploadJobResponse, CreateUploadJobVars } from "../interfaces/interfaces";
 
@@ -17,10 +17,30 @@ const UploadForm: React.FC = () => {
   });
 
   const beforeUpload = (file: File) => {
+    logger.info('Проверка файла перед загрузкой', {
+      component: 'UploadForm',
+      action: 'before_upload',
+      filename: file.name,
+      fileSize: file.size,
+      mimeType: file.type
+    });
+
     if (!file.type.startsWith("audio/")) {
+      logger.warn('Попытка загрузки неаудио файла', {
+        component: 'UploadForm',
+        action: 'file_validation_failed',
+        filename: file.name,
+        mimeType: file.type
+      });
       message.error("Можно загружать только аудиофайлы!");
       return Upload.LIST_IGNORE;
     }
+
+    logger.info('Файл прошел валидацию', {
+      component: 'UploadForm',
+      action: 'file_validation_success',
+      filename: file.name
+    });
     return true;
   };
 
@@ -28,7 +48,22 @@ const UploadForm: React.FC = () => {
     const { file, onSuccess, onError } = options;
     setLoading(true);
 
+    
+    logger.uploadStart(file.name, file.size, file.type);
+
     try {
+      
+      logger.info('Создание задачи загрузки', {
+        component: 'UploadForm',
+        action: 'create_upload_job',
+        filename: file.name,
+        variables: {
+          filename: file.name,
+          mime: file.type,
+          size: file.size
+        }
+      });
+
       const { data } = await createUploadJob({
         variables: {
           filename: file.name,
@@ -38,26 +73,77 @@ const UploadForm: React.FC = () => {
       });
 
       if (!data?.createUploadJob) {
-        throw new Error("Failed to create upload job");
+        const error = new Error("Failed to create upload job - no data returned");
+        logger.uploadError(file.name, error, {
+          action: 'create_upload_job_failed',
+          reason: 'no_data_returned'
+        });
+        throw error;
       }
 
       const { uploadUrl, job } = data.createUploadJob;
 
-      await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
+      logger.info('Задача загрузки создана успешно', {
+        component: 'UploadForm',
+        action: 'upload_job_created',
+        filename: file.name,
+        jobId: job.id,
+        uploadUrl: uploadUrl
       });
 
+      
+      logger.info('Начало загрузки файла в MinIO', {
+        component: 'UploadForm',
+        action: 'minio_upload_start',
+        filename: file.name,
+        uploadUrl: uploadUrl
+      });
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file
+      });
+
+      if (!uploadResponse.ok) {
+        const error = new Error(`MinIO upload failed: ${uploadResponse.status} ${uploadResponse.statusText}`);
+        logger.uploadError(file.name, error, {
+          action: 'minio_upload_failed',
+          status: uploadResponse.status,
+          statusText: uploadResponse.statusText,
+          uploadUrl: uploadUrl
+        });
+        throw error;
+      }
+
+      logger.uploadSuccess(file.name, job.id, uploadUrl);
 
       //В новой версии статичный message не поддерживается. Поэтому был использован Alert в качестве вывода сообщений
       alert(`Файл "${job.name}" успешно загружен!`);
       onSuccess(null, file);
     } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      
+      // Логи для отладки 
+      logger.uploadError(file.name, error, {
+        action: 'upload_process_failed',
+        errorType: error.constructor.name,
+        errorMessage: error.message,
+        stack: error.stack
+      });
+
       console.error("Ошибка при загрузке:", err);
       alert("Ошибка загрузки файла");
       onError(err);
     } finally {
       setLoading(false);
+      logger.info('Процесс загрузки завершен', {
+        component: 'UploadForm',
+        action: 'upload_process_completed',
+        filename: file.name
+      });
     }
   };
 
